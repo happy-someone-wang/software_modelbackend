@@ -4,9 +4,11 @@ import subprocess
 
 import pandas as pd
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import tasks
 
 app = Flask(__name__)
+CORS(app)  # 允许所有跨域访问
 
 log_file = open("./workspace/log/console_output.txt", "w")
 
