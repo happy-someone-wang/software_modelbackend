@@ -16,9 +16,12 @@ log_file = open("./workspace/log/console_output.txt", "w")
 @app.route('/process', methods=['POST'])
 def process_data():
     # 获取POST请求中的原始数据
-    data = request.form.get('data')
-    model = request.form.get('model')
-    train_data = request.form.get('train_data')
+    form_data = request.get_json()
+    print(form_data)
+
+    data = form_data['data']
+    model = form_data['model']
+    train_data = form_data['train_data']
     print(model)
 
     pth_dir=get_pth_path(train_data)
@@ -34,6 +37,37 @@ def process_data():
     else :
         result = 0
     return jsonify(result)
+
+@app.route('/process_mul', methods=['POST'])
+def process_mul_data():
+    # 获取POST请求中的原始数据
+    form_data = request.get_json()  # 将表单数据转换为字典
+    print(form_data)
+
+    results = []  # 存储每个组合的处理结果
+
+    for item in form_data:
+        model = item['model']
+        data = item['data']
+        train_data = item['train_data']
+
+        pth_dir = get_pth_path(train_data)
+        data_dir = get_data_path(data)
+
+        if model == 'DTL':
+            result = DTL_predict(pth_dir, data_dir)
+        elif model == 'CNN':
+            result = CNN_predict(pth_dir, data_dir)
+        elif model == 'Classify':
+            result = Classify_predict(pth_dir, data_dir)
+        elif model == 'PU':
+            result = PU_predict(pth_dir, data_dir)
+        else:
+            result = 0
+
+        results.append(result)
+
+    return jsonify(results)
 
 
 def get_log():
@@ -166,4 +200,4 @@ def get_data_path(file_name):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=5001)
